@@ -220,6 +220,58 @@
                     d3.select("#tooltip").remove()
                 })
     })
+
+    //绘制饼图
+    radius = Math.min(width/2,height/3)/2;
+    var circle = d3.select("body")			//选择<body>
+            .append("svg")			//在<body>中添加<svg>
+            .attr("width", width)	//设定<svg>的宽度属性
+            .attr("height", height/2);//设定<svg>的高度属性
+    d3.csv("data/pie_data.csv",function (error,data) {
+       data.forEach(function (d) {
+           d.totalView = +d.totalView
+       });
+
+        var pie = d3.layout.pie()
+                .value(function (d) {
+                    return d.totalView
+                });
+
+        var piedata = pie(data);
+
+        var color = d3.scale.category20c();
+
+        var arc = d3.svg.arc()
+                .outerRadius(radius - 10)
+                .innerRadius(0);
+
+        var arcs = circle.selectAll("g")
+                .data(piedata)
+                .enter()
+                .append("g")
+                .attr("transform","translate("+width/2+","+height/4+")");
+        arcs.append("path")
+                .attr("fill",function (d,i) {
+                    return color(i)
+                })
+                .attr("d",arc);
+        arcs.append("text")
+                .attr("transform",function (d) {
+                    return "translate("+arc.centroid(d)+")"
+                })
+                .attr("text-anchor","middle")
+                .attr("font-size","12px")
+                .text(function (d) {
+                    return d3.format("%")(d.data.percent)
+                });
+        circle.append("text")
+                .attr("class","text")
+                .attr("x",width/3)
+                .attr("y",50)
+                .style("font-size","15px")
+                .text("Total video views of Top-10 Videos in May")
+
+    })
 </script>
 </body>
 </html>
